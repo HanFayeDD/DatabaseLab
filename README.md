@@ -11,7 +11,7 @@ RUCBase是由中国人民大学数据库教学团队开发，配套教育部“1
 ## HITSZ Lab 
 ### 任务1.1磁盘存储管理器
 ![alt text](assets/image.png)
-### 缓冲池替换策略
+### 任务1.2缓冲池替换策略
 ![alt text](assets/image-1.png)
 
 ## 实验环境：
