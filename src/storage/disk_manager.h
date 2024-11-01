@@ -64,6 +64,9 @@ class DiskManager {
 
     int get_file_fd(const std::string &file_name);
 
+    bool is_file_open(const std::string &file_name);
+
+    bool is_file_close(int fd);
     /*日志操作*/
     int read_log(char *log_data, int size, int offset);
 
