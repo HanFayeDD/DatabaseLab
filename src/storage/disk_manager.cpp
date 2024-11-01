@@ -14,8 +14,6 @@ See the Mulan PSL v2 for more details. */
 #include <string.h>    // for memset
 #include <sys/stat.h>  // for stat
 #include <unistd.h>    // for lseek
-#include <string.h>
-
 #include "defs.h"
 
 DiskManager::DiskManager() { memset(fd2pageno_, 0, MAX_FD * (sizeof(std::atomic<page_id_t>) / sizeof(char))); }
@@ -117,10 +115,11 @@ void DiskManager::create_file(const std::string &path) {
         throw FileExistsError(path);
     }
     //调用open()函数，使用O_CREAT模式
-    int fd = open(path.c_str(), O_CREAT);
+    int fd = open(path.c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if (fd < 0){
         throw InternalError("DiskManager::create_file Error");
     }
+    // printf("**************************create file %s success\n", path.c_str());
 }
 
 /**
@@ -137,7 +136,7 @@ void DiskManager::destroy_file(const std::string &path) {
     if(unlink(path.c_str()) == 0){
         ; //成功关闭
     }else{
-        throw InternalError("DiskManager::destroy_file Error");
+        throw FileNotFoundError(path);
     }
 }
 
@@ -155,8 +154,8 @@ int DiskManager::open_file(const std::string &path) {
     }else{
         int fd = open(path.c_str(), O_RDWR);
         if (fd < 0) {
-            // printf("open file %s failed\n", path.c_str());
-            throw InternalError("DiskManager::open_file Error");
+            // printf("***************************************************open file %s failed\n", path.c_str());
+            throw FileNotFoundError(path);
         }
         path2fd_[path] = fd;
         fd2path_[fd] = path;

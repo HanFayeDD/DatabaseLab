@@ -77,12 +77,14 @@ TEST_F(DiskManagerTest, FileOperation) {
         // 创建文件
         disk_manager_->create_file(filename);
         EXPECT_EQ(disk_manager_->is_file(filename), true);  // 检查是否创建文件成功
+        // printf("????????????here0\n");
         try {
             disk_manager_->create_file(filename);
             assert(false);
         } catch (const FileExistsError &e) {
         }
         // 打开文件
+        // printf("????????????here1\n");
         int fd = disk_manager_->open_file(filename);
         fd2name[fd] = filename;
 
