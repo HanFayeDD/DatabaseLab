@@ -38,7 +38,8 @@ class LRUReplacer : public Replacer {
     void unpin(frame_id_t frame_id);
 
     size_t Size();
-
+    //内存中的缓冲池由若干个帧(frame)组成，缓冲池中每一个帧可以存放一个数据⻚
+    //一个fd文件中中有多个数据页
    private:
     std::mutex latch_;                  // 互斥锁
     std::list<frame_id_t> LRUlist_;     // 按加入的时间顺序存放unpinned pages的frame id，首部表示最近被访问
