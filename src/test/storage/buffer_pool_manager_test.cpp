@@ -110,7 +110,6 @@ TEST_F(BufferPoolManagerTest, SimpleTest) {
     }
 
     
-    printf("--------------------------------here5\n");
 
     // Scenario: After unpinning pages {0, 1, 2, 3, 4} and pinning another 4 new pages,
     // there would still be one cache frame left for reading page 0.
@@ -120,7 +119,6 @@ TEST_F(BufferPoolManagerTest, SimpleTest) {
     for (int i = 0; i < 4; ++i) {
         EXPECT_NE(nullptr, bpm->new_page(&tmp_page_id));
     }
-    printf("--------------------------------here6\n");
 
 
     // Scenario: We should be able to fetch the data we wrote a while ago.

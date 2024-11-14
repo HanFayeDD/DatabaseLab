@@ -65,7 +65,6 @@ void LRUReplacer::unpin(frame_id_t frame_id) {
     // Todo:
     //  支持并发锁
     //  选择一个frame取消固定
-    //???在LRU的数据结构中的才是unpin的对象
     std::scoped_lock lock{latch_};
     // 判断该frame是否在LRUhash_中
     //在hash中，直接返回(本身就是unpin的)
