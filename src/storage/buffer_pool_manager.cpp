@@ -52,7 +52,8 @@ void BufferPoolManager::update_page(Page *page, PageId new_page_id, frame_id_t n
     // 1 如果是脏页，写回磁盘，并且把dirty置为false
     // 2 更新page table
     // 3 重置page的data，更新page id
-    
+    // std::scoped_lock lock{latch_};
+
     if (page->is_dirty()) {
         disk_manager_->write_page(page->id_.fd, page->id_.page_no, page->data_, PAGE_SIZE);
         page->is_dirty_ = false;
@@ -102,14 +103,16 @@ Page *BufferPoolManager::fetch_page(PageId page_id) {
     // 2
     Page &new_page = pages_[v_frame_id];
     if (new_page.is_dirty()) {
-        update_page(&pages_[v_frame_id], page_id, v_frame_id);
+        // update_page(&pages_[v_frame_id], page_id, v_frame_id);
+        // !!!调用update函数就不行，考虑锁的作用域
+        disk_manager_->write_page(new_page.get_page_id().fd, new_page.get_page_id().page_no, new_page.get_data(),PAGE_SIZE);
     }
 
-    // 3
-    disk_manager_->read_page(page_id.fd, page_id.page_no, new_page.data_, PAGE_SIZE);
-
-    // 4 从freelist或者lru获得后要更新table
+    page_table_.erase(new_page.get_page_id());
     page_table_[page_id] = v_frame_id;
+    new_page.id_ = page_id;
+    memset(new_page.data_, 0, PAGE_SIZE);
+    disk_manager_->read_page(page_id.fd, page_id.page_no, new_page.data_, PAGE_SIZE);
     replacer_->pin(v_frame_id);
     new_page.pin_count_ = 1;
     return &new_page;
@@ -199,10 +202,8 @@ Page *BufferPoolManager::new_page(PageId *page_id) {
     }
     // 2.   在fd对应的文件分配一个新的page_id
     page_id->page_no = disk_manager_->allocate_page(page_id->fd);
-    // 3.   将frame的数据写回磁盘
-
+    // 3.   将frame的数据写回磁盘:find_victim_page中如果是从lru中获取的已经写了
     Page &new_page = pages_[frame_id];
-    // 更新页表和页面状态
     page_table_.erase(pages_[frame_id].id_);
     memset(new_page.data_, 0, PAGE_SIZE);
     new_page.id_ = *page_id;
@@ -239,7 +240,7 @@ bool BufferPoolManager::delete_page(PageId page_id) {
     // 删除操作
     page_table_.erase(page_id);
     disk_manager_->deallocate_page(page_id.page_no);
-    page.reset_memory();
+    memset(page.data_, 0, PAGE_SIZE);
     free_list_.push_back(it->second);
 
     return true;
@@ -259,3 +260,4 @@ void BufferPoolManager::flush_all_pages(int fd) {
         }
     }
 }
+
