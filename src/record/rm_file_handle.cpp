@@ -88,8 +88,13 @@ RmPageHandle RmFileHandle::fetch_page_handle(int page_no) const {
     // Todo:
     // 使用缓冲池获取指定页面，并生成page_handle返回给上层
     // if page_no is invalid, throw PageNotExistError exception
-
-    return RmPageHandle(&file_hdr_, nullptr);
+    if(page_no > file_hdr_.num_pages){
+        throw PageNotExistError("table", page_no);
+    }
+    PageId pageid;
+    pageid.fd = fd_;
+    pageid.page_no = page_no;
+    return RmPageHandle(&file_hdr_, buffer_pool_manager_->fetch_page(pageid));
 }
 
 /**
@@ -101,8 +106,23 @@ RmPageHandle RmFileHandle::create_new_page_handle() {
     // 1.使用缓冲池来创建一个新page
     // 2.更新page handle中的相关信息
     // 3.更新file_hdr_
+    //1
+    PageId newpageid;
+    Page *newpage;
+    newpage = buffer_pool_manager_->new_page(&newpageid);
+    if(newpage==nullptr){
+        throw std::runtime_error("无法分配新的页面");
+    }
+    //2
+    RmPageHandle page_handle(&file_hdr_, newpage);
+    page_handle.page_hdr->num_records = 0;
+    page_handle.page_hdr->next_free_page_no = file_hdr_.first_free_page_no;
 
-    return RmPageHandle(&file_hdr_, nullptr);
+
+    //3
+    file_hdr_.num_pages += 1;
+    file_hdr_.first_free_page_no = newpageid.page_no;
+    return page_handle;
 }
 
 /**
@@ -117,8 +137,11 @@ RmPageHandle RmFileHandle::create_page_handle() {
     //     1.1 没有空闲页：使用缓冲池来创建一个新page；可直接调用create_new_page_handle()
     //     1.2 有空闲页：直接获取第一个空闲页
     // 2. 生成page handle并返回给上层
-
-    return RmPageHandle(&file_hdr_, nullptr);
+    if(file_hdr_.first_free_page_no!=RM_NO_PAGE){
+        return create_new_page_handle();
+    }else{
+        return fetch_page_handle(file_hdr_.first_free_page_no);
+    }
 }
 
 /**
@@ -129,5 +152,6 @@ void RmFileHandle::release_page_handle(RmPageHandle&page_handle) {
     // 当page从已满变成未满，考虑如何更新：
     // 1. page_handle.page_hdr->next_free_page_no
     // 2. file_hdr_.first_free_page_no
-    
+    page_handle.page_hdr->next_free_page_no = file_hdr_.first_free_page_no;
+    file_hdr_.first_free_page_no = page_handle.page->get_page_id().page_no;    
 }

@@ -21,6 +21,7 @@ See the Mulan PSL v2 for more details. */
 class RmManager;
 
 /* 对表数据文件中的页面进行封装 */
+/*管理一个页的数据结构*/
 struct RmPageHandle {
     const RmFileHdr *file_hdr;  // 当前页面所在文件的文件头指针
     Page *page;                 // 页面的实际数据，包括页面存储的数据、元信息等
@@ -49,7 +50,7 @@ class RmFileHandle {
     DiskManager *disk_manager_;
     BufferPoolManager *buffer_pool_manager_;
     int fd_;        // 打开文件后产生的文件句柄
-    RmFileHdr file_hdr_;    // 文件头，维护当前表文件的元数据
+    RmFileHdr file_hdr_;    // 文件头，维护当前表文件的元数据。第0页存储file_hdr(元数据信息)记录在第1页开始存入
 
    public:
     RmFileHandle(DiskManager *disk_manager, BufferPoolManager *buffer_pool_manager, int fd)
