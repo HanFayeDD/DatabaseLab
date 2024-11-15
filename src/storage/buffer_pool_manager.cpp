@@ -96,7 +96,7 @@ Page *BufferPoolManager::fetch_page(PageId page_id) {
 
     // 1.2
     frame_id_t v_frame_id;
-    if (!find_victim_page(&v_frame_id)) {
+    if (!find_victim_page(&v_frame_id)) {               
         return nullptr;
     }
 
