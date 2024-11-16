@@ -15,6 +15,8 @@ RUCBase是由中国人民大学数据库教学团队开发，配套教育部“1
 ![alt text](assets/image-1.png)
 ### 任务1.3缓冲池管理器
 ![alt text](assets/image-2.png)
+### 任务2  记录管理器
+![alt text](assets/image-3.png)
 
 ## 实验环境：
 - 操作系统：Ubuntu 18.04 及以上(64位)

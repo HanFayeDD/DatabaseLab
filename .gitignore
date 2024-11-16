@@ -30,3 +30,6 @@ __pycache__/
 
 deps/*
 deps/
+
+#
+myreadme.md
