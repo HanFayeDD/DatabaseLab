@@ -93,7 +93,9 @@ void RmFileHandle::delete_record(const Rid& rid, Context* context) {
     if (page_handle.page_hdr->num_records == file_hdr_.num_records_per_page) {
         page_handle.page_hdr->num_records--;
         release_page_handle(page_handle);
+        return;
     }
+    page_handle.page_hdr->num_records--;
 }
 
 /**
