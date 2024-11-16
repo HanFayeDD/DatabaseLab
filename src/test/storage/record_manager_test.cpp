@@ -115,7 +115,6 @@ TEST(RecordManagerTest, SimpleTest) {
     // test pages
     rm_manager->create_file(filename, record_size);
     auto file_handle = rm_manager->open_file(filename);
-
     char write_buf[PAGE_SIZE];
     size_t add_cnt = 0;
     size_t upd_cnt = 0;
@@ -128,6 +127,8 @@ TEST(RecordManagerTest, SimpleTest) {
             Rid rid = file_handle->insert_record(write_buf, context);
             mock[rid] = std::string((char *)write_buf, file_handle->file_hdr_.record_size);
             add_cnt++;
+            
+
             //            std::cout << "insert " << rid << '\n'; // operator<<(cout,rid)
         } else {
             // update or erase random rid

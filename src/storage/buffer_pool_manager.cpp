@@ -85,7 +85,6 @@ Page *BufferPoolManager::fetch_page(PageId page_id) {
 
     // 1.
     std::scoped_lock lock{latch_};
-    assert(page_id.page_no != INVALID_PAGE_ID);
     auto it = page_table_.find(page_id);
     if (it != page_table_.end()) {
         frame_id_t frame_id = it->second;
